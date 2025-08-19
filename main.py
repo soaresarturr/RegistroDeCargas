@@ -29,7 +29,7 @@ def menu():
         if opcao == "1":
             nome = input("Nome do exercício: ")
             if nome not in dados:
-                dados[nome] = []
+                dados[nome] = []   # <<< CORRIGIDO AQUI
                 print(f"✅ Exercício '{nome}' adicionado.")
             else:
                 print("⚠️ Esse exercício já existe.")
@@ -57,6 +57,3 @@ def menu():
             break
         else:
             print("❌ Opção inválida.")
-
-if __name__ == "__main__":
-    menu()
