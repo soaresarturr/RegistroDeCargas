@@ -1,59 +1,55 @@
-import json
+import tkinter as tk
+from tkinter import messagebox
 import os
+from datetime import datetime
 
-ARQUIVO = "cargas.json"
+ARQUIVO = "cargas.txt"
 
-# Carregar dados
-def carregar():
-    if os.path.exists(ARQUIVO):
-        with open(ARQUIVO, "r") as f:
-            return json.load(f)
-    return {}
+#Aqui salva o arquivo
+def salvar(exercicio, carga):
+    with open(ARQUIVO, "a") as f:
+        data = datetime.now().strftime("%d/%m/%y")
 
-# Salvar dados
-def salvar(dados):
-    with open(ARQUIVO, "w") as f:
-        json.dump(dados, f, indent=4)
+# Adicionar carga
+def adicionar():
+    exercicio = entry_exercicio.get().strip()
+    carga = entry_carga.get().strip()
 
-def menu():
-    dados = carregar()
+    if not exercicio or not carga:
+        messagebox.showwarning("Aviso", "Preencha todos os campos!")
+        return
     
-    while True:
-        print("\n--- REGISTRO DE CARGAS ---")
-        print("1. Adicionar novo exercício")
-        print("2. Registrar carga em exercício existente")
-        print("3. Mostrar exercícios")
-        print("4. Sair")
-        opcao = input("Escolha uma opção: ")
+    salvar(exercicio, carga)
+    messagebox.showinfo("Sucesso", f"Carga salva: {exercicio} - {carga}kg")
+    entry_exercicio.delete(0, tk.END)
+    entry_carga.delete(0, tk.END)
+    
 
-        if opcao == "1":
-            nome = input("Nome do exercício: ")
-            if nome not in dados:
-                dados[nome] = []   # <<< CORRIGIDO AQUI
-                print(f"✅ Exercício '{nome}' adicionado.")
-            else:
-                print("⚠️ Esse exercício já existe.")
-            salvar(dados)
+#Mostra os registros
+def mostrar():
+    if not os.path.exists(ARQUIVO):
+        messagebox.showinfo("Registros", "Nenhum dado encontrado.")
+        return
+    
+    with open(ARQUIVO, "r") as f:
+        conteudo = f.read()
+    
+    messagebox.showinfo("Registros", conteudo if conteudo else "Nenhum dado registrado.")
 
-        elif opcao == "2":
-            nome = input("Nome do exercício: ")
-            if nome in dados:
-                carga = input("Digite a carga (kg): ")
-                dados[nome].append(carga)
-                print(f"✅ Carga {carga}kg adicionada em '{nome}'.")
-            else:
-                print("❌ Exercício não encontrado.")
-            salvar(dados)
+# Interface
+janela = tk.Tk()
+janela.title("Registro de Cargas")
 
-        elif opcao == "3":
-            if not dados:
-                print("📂 Nenhum exercício cadastrado.")
-            else:
-                for ex, cargas in dados.items():
-                    print(f"\n{ex}: {', '.join(cargas) if cargas else 'sem cargas ainda'}")
+tk.Label(janela, text="Exercício:").pack(pady=5)
+entry_exercicio = tk.Entry(janela, width=30)
+entry_exercicio.pack()
 
-        elif opcao == "4":
-            print("👋 Saindo...")
-            break
-        else:
-            print("❌ Opção inválida.")
+tk.Label(janela, text="Carga (kg):").pack(pady=5)
+entry_carga = tk.Entry(janela, width=30)
+entry_carga.pack()
+
+tk.Button(janela, text="Adicionar", command=adicionar).pack(pady=10)
+tk.Button(janela, text="Mostrar Registros", command=mostrar).pack(pady=5)
+tk.Button(janela, text="Sair", command=janela.quit).pack(pady=10)
+
+janela.mainloop()
